@@ -3,7 +3,36 @@
 #include <math.h>
 #include "matrix.h"
 
+int mrealloc(Matrix_t *x, int rows, int cols){
+	if(x->rows != rows || x->cols != cols)
+	{
+		free(x->data);
+		x->data = malloc(rows * cols * sizeof(double));
+		if(!x->data)
+		{
+			return 1;
+		}
+		x->rows = rows;
+		x->cols = cols;
+	}
+	return 0;
+}
 
+int mcmp(const Matrix_t* a, const Matrix_t* b){
+	int row, col;
+
+	// If matrices aren't the same dimensions they can't be equal
+	if(!a || !b || a->rows != b->rows || a->cols != b->cols) return 0;
+
+	// If any cell is not equal, then matrices are not equal
+	for(int i = 0; i < a->rows * a->cols; i++)
+	{
+		if(a->data[i] != b->data[i]) return 0;
+	}
+
+	// Otherwise, if all cells are equal, the matrices are equal
+	return 1;
+}
 
 Matrix_t* mnew(int rows, int cols){
 	Matrix_t *new_matrix;
@@ -41,6 +70,7 @@ Matrix_t* mmul(const Matrix_t* a, const Matrix_t* b, Matrix_t *out){
 	}
 
 	// Matrix dimesions: (n x m) * (m x k) = (m x k)
+	// TODO: Auto-reallocate the matrix
     if(out->rows != a->rows || out->cols != b->cols)return NULL;
 	if(!out)return NULL;
 
