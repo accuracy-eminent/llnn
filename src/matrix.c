@@ -117,9 +117,25 @@ Matrix_t* mhad(const Matrix_t* a, const Matrix_t* b, Matrix_t* out){
 
 	if(mrealloc(out, a->rows, a->cols) != 0) return NULL;
 
-	/* Set output matrix to the Hadamard product of the input matrices */
+	// Set output matrix to the Hadamard product of the input matrices
 	for(int i = 0; i < a->rows*a->cols; i++){
 		out->data[i] = a->data[i] * b->data[i];
 	}
+	return out;
+}
+
+Matrix_t* mtrns(const Matrix_t* a, Matrix_t* out){
+	int row, col;
+
+	if(!a)return NULL;
+	if(mrealloc(out, a->cols, a->rows) != 0) return NULL;
+
+	// Set output matrix to transposed input matrix
+	for(row = 0; row < a->rows; row++){
+		for(col = 0; col < a->cols; col++){
+			out->data[IDX_M(*out, col, row)] = a->data[IDX_M(*a, row, col)];
+		}
+	}
+
 	return out;
 }

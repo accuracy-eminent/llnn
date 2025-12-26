@@ -194,6 +194,37 @@ static char* test_mhad(){
 	return NULL;
 }
 
+static char* test_mtrns(){
+	Matrix_t *a, *b, *at;
+	double a_data[6] = {
+		1., 2., 3.,
+		4., 5., 6.
+	};
+	double b_data[6] = {
+		1., 4.,
+		2., 5.,
+		3., 6.
+	};
+
+	// Convert arrays into matrices
+	a = mnew(2,3);
+	b = mnew(3,2);
+	at = mnew(3,2);
+	memcpy(a->data, a_data, sizeof(a_data));
+	memcpy(b->data, b_data, sizeof(b_data));
+
+	// Run tests
+	mtrns(a, at);
+	mu_assert("Error, transposed a != b", mcmp(at, b));
+
+	/* Free variables */
+	mfree(a);
+	mfree(b);
+	mfree(at);
+
+	return NULL;
+}
+
 static char* all_tests(){
 	mu_run_test(test_mnew);
 	mu_run_test(test_mcmp);
@@ -201,6 +232,7 @@ static char* all_tests(){
 	mu_run_test(test_madd);
 	mu_run_test(test_mscale);
 	mu_run_test(test_mhad);
+	mu_run_test(test_mtrns);
 	return NULL;
 }
 
