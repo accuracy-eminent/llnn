@@ -143,14 +143,6 @@ static char* test_mscale(){
 	d->data[0] = -8.0;
 
 	mscale(a, 2.0, as);
-	for(int i = 0; i < as->rows; i++)
-	{
-		for(int j = 0; j < as->cols; j++)
-		{
-			printf("%f\t", as->data[IDX_M(*as, i, j)]);
-		}
-		printf("\n");
-	}
 	mu_assert("Error, b != mscale(a)", mcmp(b, as));
 	mscale(c, 1.0, cs);
 	mu_assert("Error, d != mscale(c)", mcmp(d, cs));

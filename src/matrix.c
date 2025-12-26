@@ -4,10 +4,11 @@
 #include "matrix.h"
 
 int mrealloc(Matrix_t *x, int rows, int cols){
+	if(!x) return 1;
 	if(x->rows != rows || x->cols != cols)
 	{
 		free(x->data);
-		x->data = malloc(rows * cols * sizeof(double));
+		x->data = calloc(rows, cols * sizeof(double));
 		if(!x->data)
 		{
 			return 1;
@@ -65,10 +66,9 @@ Matrix_t* mmul(const Matrix_t* a, const Matrix_t* b, Matrix_t *out){
 		return NULL;
 	}
 
-	// Matrix dimesions: (n x m) * (m x k) = (m x k)
-	// TODO: Auto-reallocate the matrix
-	if(!out)return NULL;
-    if(out->rows != a->rows || out->cols != b->cols)return NULL;
+	// Matrix dimensions: (n x m) * (m x k) = (m x k)
+	if(mrealloc(out, a->rows, b->cols) != 0) return NULL;
+
 
 	//For each row in matrix a
 	for(row = 0; row < a->rows; row++){
@@ -90,9 +90,7 @@ Matrix_t* madd(const Matrix_t* a, const Matrix_t* b, Matrix_t* out){
 	// Check conformability
 	if(!a || !b || a->rows != b->rows || a->cols != b->cols) return NULL;
 
-	// TODO: Auto-adjust matrix dimensions
-	if(!out) return NULL;
-	if(out->rows != a->rows || out->cols != a->cols)return NULL;
+	if(mrealloc(out, a->rows, a->cols) != 0) return NULL;
 
 	/* Set output matrix to the sum of the input matrices */
 	for(int i = 0; i < a->rows*a->cols; i++){
@@ -103,7 +101,7 @@ Matrix_t* madd(const Matrix_t* a, const Matrix_t* b, Matrix_t* out){
 
 Matrix_t* mscale(const Matrix_t* a, double b, Matrix_t* out){
 	if(!a || !out) return NULL;
-	if(out->rows != a->rows || out->cols != a->cols) return NULL;
+	if(mrealloc(out, a->rows, a->cols) != 0) return NULL;
 
 	for(int i = 0; i < a->rows*a->cols; i++){
 		out->data[i] = a->data[i] * b;
