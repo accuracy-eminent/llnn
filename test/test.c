@@ -118,11 +118,59 @@ static char* test_madd(){
 	return NULL;
 }
 
+static char* test_mscale(){
+	Matrix_t *a, *as, *b, *c, *cs, *d;
+	double a_data[4] = {
+		1.0, 2.0,
+		3.0, 4.0
+	};
+	double b_data[4] = {
+		2.0, 4.0,
+		6.0, 8.0
+	};
+
+	as = mnew(2, 2);
+	cs = mnew(1, 1);
+
+	a = mnew(2, 2);
+	b = mnew(2, 2);
+	memcpy(a->data, a_data, sizeof(a_data));
+	memcpy(b->data, b_data, sizeof(b_data));
+
+	c = mnew(1, 1);
+	d = mnew(1, 1);
+	c->data[0] = -8.0;
+	d->data[0] = -8.0;
+
+	mscale(a, 2.0, as);
+	for(int i = 0; i < as->rows; i++)
+	{
+		for(int j = 0; j < as->cols; j++)
+		{
+			printf("%f\t", as->data[IDX_M(*as, i, j)]);
+		}
+		printf("\n");
+	}
+	mu_assert("Error, b != mscale(a)", mcmp(b, as));
+	mscale(c, 1.0, cs);
+	mu_assert("Error, d != mscale(c)", mcmp(d, cs));
+
+	mfree(as);
+	mfree(cs);
+	mfree(a);
+	mfree(b);
+	mfree(c);
+	mfree(d);
+
+	return NULL;
+}
+
 static char* all_tests(){
 	mu_run_test(test_mnew);
 	mu_run_test(test_mcmp);
 	mu_run_test(test_mmul);
 	mu_run_test(test_madd);
+	mu_run_test(test_mscale);
 	return NULL;
 }
 

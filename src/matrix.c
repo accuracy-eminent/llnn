@@ -40,7 +40,7 @@ Matrix_t* mnew(int rows, int cols){
 	new_matrix->rows = rows;
 	new_matrix->cols = cols;
 
-	new_matrix->data = malloc(rows * cols * sizeof(double));
+	new_matrix->data = calloc(rows, cols * sizeof(double));
 	if(!new_matrix->data){
 		free(new_matrix->data);
 		free(new_matrix);
@@ -98,5 +98,16 @@ Matrix_t* madd(const Matrix_t* a, const Matrix_t* b, Matrix_t* out){
 	for(int i = 0; i < a->rows*a->cols; i++){
 		out->data[i] = a->data[i] + b->data[i];
 	}
+	return out;
+}
+
+Matrix_t* mscale(const Matrix_t* a, double b, Matrix_t* out){
+	if(!a || !out) return NULL;
+	if(out->rows != a->rows || out->cols != a->cols) return NULL;
+
+	for(int i = 0; i < a->rows*a->cols; i++){
+		out->data[i] = a->data[i] * b;
+	}
+
 	return out;
 }
