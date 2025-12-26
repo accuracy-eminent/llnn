@@ -157,15 +157,52 @@ static char* test_mscale(){
 	return NULL;
 }
 
+static char* test_mhad(){
+	Matrix_t *a, *b, *c, *prod;
+	double a_data[4] = {
+		1., 2.,
+		2., 1.
+	};
+	double b_data[4] = {
+		3., 4.,
+		5., 6.
+	};
+	double c_data[4] = {
+		3., 8.,
+		10., 6.
+	};
+
+	// Convert arrays into matrices
+	a = mnew(2,2);
+	b = mnew(2,2);
+	c = mnew(2,2);
+	prod = mnew(2, 2);
+	memcpy(a->data, a_data, sizeof(a_data));
+	memcpy(b->data, b_data, sizeof(b_data));
+	memcpy(c->data, c_data, sizeof(c_data));
+
+	// Run tests
+	mhad(a, b, prod);
+	mu_assert("Error, a x b != c", mcmp(prod, c));
+	mfree(prod);
+
+	/* Free variables */
+	mfree(a);
+	mfree(b);
+	mfree(c);
+
+	return NULL;
+}
+
 static char* all_tests(){
 	mu_run_test(test_mnew);
 	mu_run_test(test_mcmp);
 	mu_run_test(test_mmul);
 	mu_run_test(test_madd);
 	mu_run_test(test_mscale);
+	mu_run_test(test_mhad);
 	return NULL;
 }
-
 
 int main(void){
 	char* result = all_tests();

@@ -16,5 +16,6 @@ Matrix_t* mmul(const Matrix_t* a, const Matrix_t* b, Matrix_t *out);
 int mcmp(const Matrix_t* a, const Matrix_t* b);
 Matrix_t* madd(const Matrix_t* a, const Matrix_t* b, Matrix_t* out);
 Matrix_t* mscale(const Matrix_t* a, double b, Matrix_t* out);
+Matrix_t* mhad(const Matrix_t* a, const Matrix_t* b, Matrix_t* out);
 
 #endif
