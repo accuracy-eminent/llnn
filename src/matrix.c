@@ -19,8 +19,6 @@ int mrealloc(Matrix_t *x, int rows, int cols){
 }
 
 int mcmp(const Matrix_t* a, const Matrix_t* b){
-	int row, col;
-
 	// If matrices aren't the same dimensions they can't be equal
 	if(!a || !b || a->rows != b->rows || a->cols != b->cols) return 0;
 
@@ -36,7 +34,6 @@ int mcmp(const Matrix_t* a, const Matrix_t* b){
 
 Matrix_t* mnew(int rows, int cols){
 	Matrix_t *new_matrix;
-	int row;
 
 	new_matrix = malloc(sizeof(Matrix_t));
 	if(!new_matrix)return NULL;
@@ -53,7 +50,6 @@ Matrix_t* mnew(int rows, int cols){
 }
 
 void mfree(Matrix_t* x){
-	int row;
 	if(!x) return;
 	free(x->data);
 	free(x);
@@ -71,8 +67,8 @@ Matrix_t* mmul(const Matrix_t* a, const Matrix_t* b, Matrix_t *out){
 
 	// Matrix dimesions: (n x m) * (m x k) = (m x k)
 	// TODO: Auto-reallocate the matrix
-    if(out->rows != a->rows || out->cols != b->cols)return NULL;
 	if(!out)return NULL;
+    if(out->rows != a->rows || out->cols != b->cols)return NULL;
 
 	//For each row in matrix a
 	for(row = 0; row < a->rows; row++){
@@ -80,13 +76,27 @@ Matrix_t* mmul(const Matrix_t* a, const Matrix_t* b, Matrix_t *out){
 		for(col = 0; col < b->cols; col++){
 			/* Set the output cell to the sum of the products of the entries in the row of a
 			and the column of b. */
-            // TODO: Add indexer macro
 			out->data[IDX_M(*out, row, col)] = 0;
 			for(index = 0; index < a->cols; index++){
-                out->data[IDX_M(*out, row, col)] += a->data[IDX_M(*a, row, index)] * b->data[IDX_M(*out, index, col)];
+                out->data[IDX_M(*out, row, col)] += a->data[IDX_M(*a, row, index)] * b->data[IDX_M(*b, index, col)];
 			}
 		}
 	}
 
+	return out;
+}
+
+Matrix_t* madd(const Matrix_t* a, const Matrix_t* b, Matrix_t* out){
+	// Check conformability
+	if(!a || !b || a->rows != b->rows || a->cols != b->cols) return NULL;
+
+	// TODO: Auto-adjust matrix dimensions
+	if(!out) return NULL;
+	if(out->rows != a->rows || out->cols != a->cols)return NULL;
+
+	/* Set output matrix to the sum of the input matrices */
+	for(int i = 0; i < a->rows*a->cols; i++){
+		out->data[i] = a->data[i] + b->data[i];
+	}
 	return out;
 }

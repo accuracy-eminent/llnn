@@ -40,9 +40,89 @@ static char* test_mcmp(){
 	return NULL;
 }
 
+static char* test_mmul(){
+	Matrix_t *a, *b, *c, *prod;
+	double a_data[4] = {
+		1., 2.,
+		2., 1.
+	};
+	double b_data[6] = {
+		2., 3., 4.,
+		5., 6., 7.
+	};
+	double c_data[6] = {
+		12., 15., 18.,
+		9., 12., 15.
+	};
+
+	// Convert arrays into matrices
+	a = mnew(2,2);
+	b = mnew(2,3);
+	c = mnew(2,3);
+	prod = mnew(2, 3);
+	memcpy(a->data, a_data, sizeof(a_data));
+	memcpy(b->data, b_data, sizeof(b_data));
+	memcpy(c->data, c_data, sizeof(c_data));
+
+
+	// Run tests
+	mmul(a, b, prod);
+	mu_assert("Error, a * b != c", mcmp(prod, c));
+	mfree(prod);
+	prod = mmul(b, a, prod);
+	mu_assert("Error, b * a != NULL", !prod);
+	mfree(prod);
+
+	/* Free variables */
+	mfree(a);
+	mfree(b);
+	mfree(c);
+
+	return NULL;
+}
+
+static char* test_madd(){
+	Matrix_t *a, *b, *c, *sum;
+	double a_data[4] = {
+		1., 2.,
+		2., 1.
+	};
+	double b_data[4] = {
+		3., 4.,
+		5., 6.
+	};
+	double c_data[4] = {
+		4., 6.,
+		7., 7.
+	};
+
+	// Convert arrays into matrices
+	a = mnew(2,2);
+	b = mnew(2,2);
+	c = mnew(2,2);
+	sum = mnew(2, 2);
+	memcpy(a->data, a_data, sizeof(a_data));
+	memcpy(b->data, b_data, sizeof(b_data));
+	memcpy(c->data, c_data, sizeof(c_data));
+
+	// Run tests
+	madd(a, b, sum);
+	mu_assert("Error, a + b != c", mcmp(sum, c));
+	mfree(sum);
+
+	/* Free variables */
+	mfree(a);
+	mfree(b);
+	mfree(c);
+
+	return NULL;
+}
+
 static char* all_tests(){
 	mu_run_test(test_mnew);
 	mu_run_test(test_mcmp);
+	mu_run_test(test_mmul);
+	mu_run_test(test_madd);
 	return NULL;
 }
 
