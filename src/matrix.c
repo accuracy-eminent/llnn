@@ -251,3 +251,18 @@ Matrix_t* mslice(const Matrix_t* in, Matrix_t* out, int start, int stop, int t){
 	// Return the sliced matrix
 	return out;
 }
+
+Matrix_t* mapply(const Matrix_t* a, dfunc func, Matrix_t* out){
+	if(!a || !func)return NULL;
+
+	// Allocate output matrix and check for NULL
+	if(!out)return NULL;
+	if(mrealloc(out, a->cols, a->rows) != 0) return NULL;
+
+	/* Set each cell of the output matrix to func(input matrix cell) */
+	for(int i = 0; i < a->rows*a->cols; i++){
+		out->data[i] = (*func)(a->data[i]);
+	}
+
+	return out;
+}

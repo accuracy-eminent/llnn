@@ -331,6 +331,19 @@ static char* test_ninit()
 	return NULL;
 }
 
+static char* test_npred()
+{
+	Matrix_t *in, *out;
+	in = mnew(2, 1);
+	out = mnew(1, 1);
+	llnn_network_t *nn = ninit(2, 2, 4, 2, &arelu, NULL);
+	npred(nn, in, out);
+	printf("Out dimensions: %d, %d\n", out->cols, out->rows);
+	mu_assert("Output size is wrong", out->cols == 1 && out->rows == 2);
+	// TODO: More extensive accurate results in testing, configure manually with identity matrix, etc
+	return NULL;
+}
+
 
 static char* all_tests(){
 	mu_run_test(test_mnew);
@@ -346,6 +359,7 @@ static char* all_tests(){
 	mu_run_test(test_asmax);
 	mu_run_test(test_lmse);
 	mu_run_test(test_ninit);
+	mu_run_test(test_npred);
 	return NULL;
 }
 

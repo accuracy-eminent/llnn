@@ -52,3 +52,48 @@ llnn_network_t* ninit(int inputs, int hidden_layers, int hiddens, int outputs, d
 
 	return nn;
 }
+
+Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
+	int layer;
+	Matrix_t *current_vector, *product, *sum;
+    sum = mnew(1, 1);
+    product = mnew(1, 1);
+    current_vector = mnew(1, 1);
+
+	if(!nn || !x || !nn->weights || !nn->biases)return NULL;
+
+	mscale(x, 1.0, current_vector);
+	// There are 1 less weights than layers
+	for(layer = 0; layer < nn->n_layers - 1; layer++){
+		// Apply the weights and biases
+		mmul(nn->weights[layer], current_vector, product);
+		madd(product, nn->biases[layer], sum);
+
+		// Apply the activation function, if it exists, but not on the output layer
+		if(nn->hidden_activ && layer < nn->n_layers-1){
+			mapply(sum, nn->hidden_activ, current_vector);
+		}
+		else{
+			mscale(sum, 1.0, current_vector);
+		}
+	}
+
+	// Apply output activation, if applicable
+	if(nn->output_activ){
+		sum = nn->output_activ(current_vector);
+		mfree(current_vector);
+		current_vector = sum;
+	}
+
+    // TODO: Free current_vector better
+    mfree(sum);
+    mfree(product);
+
+	// Return the final predicted column vector
+    if(mrealloc(out, current_vector->rows, current_vector->cols) != 0) return NULL;
+    for(int i = 0; i < current_vector->rows * current_vector->cols; i++)
+    {
+        out->data[i] = current_vector->data[i];
+    }
+	return current_vector;
+}
