@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 #include "matrix.h"
 #include "nn.h"
 #include "loss.h"
@@ -46,6 +47,7 @@ llnn_network_t* ninit(int inputs, int hidden_layers, int hiddens, int outputs, d
 	// Allocate the output layer. This maps R^hiddens -> R^outputs, so it is outputs x hiddens
     nn->weights[hidden_layers] = mnew(1, 1);
 	mrand(outputs, hiddens, -1.0, 1.0, nn->weights[hidden_layers]);
+    printf("Output weight layer (%d) dimensions: %d x %d, outputs: %d, hiddens: %d\n", hidden_layers, nn->weights[hidden_layers]->rows, nn->weights[hidden_layers]->cols, outputs, hiddens);
 	// Last bias added to output, so it should be in R^outputs
     nn->biases[hidden_layers] = mnew(1, 1);
 	mrand(outputs, 1, -1.0, 1.0, nn->biases[hidden_layers]);
@@ -66,8 +68,11 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 	// There are 1 less weights than layers
 	for(layer = 0; layer < nn->n_layers - 1; layer++){
 		// Apply the weights and biases
+        printf("Size of weights on layer %d is %d x %d\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
+        // TODO: why is reallocation failing here
 		mmul(nn->weights[layer], current_vector, product);
 		madd(product, nn->biases[layer], sum);
+        printf("Sum dimensions: %d, %d\n", sum->rows, sum->cols);
 
 		// Apply the activation function, if it exists, but not on the output layer
 		if(nn->hidden_activ && layer < nn->n_layers-1){
@@ -84,6 +89,7 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 		mfree(current_vector);
 		current_vector = sum;
 	}
+    printf("current_vector dimensions: %d, %d\n", current_vector->rows, current_vector->cols);
 
     // TODO: Free current_vector better
     mfree(sum);

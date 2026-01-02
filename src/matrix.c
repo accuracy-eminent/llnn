@@ -66,7 +66,7 @@ Matrix_t* mmul(const Matrix_t* a, const Matrix_t* b, Matrix_t *out){
 		return NULL;
 	}
 
-	// Matrix dimensions: (n x m) * (m x k) = (m x k)
+	// Matrix dimensions: (n x m) * (m x k) = (n x k)
 	if(mrealloc(out, a->rows, b->cols) != 0) return NULL;
 
 
