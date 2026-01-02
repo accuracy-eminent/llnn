@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "minunit.h"
 #include "../src/matrix.h"
 
@@ -248,10 +249,12 @@ static char* test_mslice(){
 	// Run tests
 	mslice(b, out, 0, 2, 0);
 	mu_assert("Sliced size is wrong!", out->rows == 2 && out->cols == 2);
-	mu_assert("Values are wrong!", out->data[3] != 5 || out->data[0] != 1);
+	printf("out->data: %f, %f\n", out->data[3], out->data[0]);
+	mu_assert("Values are wrong!", (fabs(out->data[3] - 5.0f) < 0.1) || fabs(out->data[0] - 1.0f) < 0.1);
 	// TODO: Test transposed
 	mslice(a, out, 0, 2, 1);
 	mu_assert("Sliced size is wrong!", out->rows == 2 && out->cols == 2);
+	printf("out->data: %f, %f\n", out->data[3], out->data[0]);
 	mu_assert("Values are wrong!", out->data[3] != 5 || out->data[0] != 1);
 
 	/* Free variables */
