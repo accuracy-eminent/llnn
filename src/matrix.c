@@ -60,7 +60,7 @@ Matrix_t* mmul(const Matrix_t* a, const Matrix_t* b, Matrix_t *out){
 	int row, col, index;
 
 	// Check for nulls and conformability
-    // TODO: Better error handling
+    // TODO: Better error handling, print when null is happening
 	if(!a || !b) return NULL;
 	if(a->cols != b->rows){
 		return NULL;
@@ -137,5 +137,75 @@ Matrix_t* mtrns(const Matrix_t* a, Matrix_t* out){
 		}
 	}
 
+	return out;
+}
+
+Matrix_t* msel(int rows, int start, int stop){
+	int out_dim;
+	int cond;
+	int row, col, row_idx;
+	Matrix_t *sel_mat;
+	// Sanity checks
+	if (stop < start) return NULL;
+	if (start > rows || stop > rows) return NULL;
+	// The output dimension of the matrix is equal to the number of kept rows, the input is the number of original rows
+	out_dim = stop - start;
+	sel_mat = mnew(out_dim, rows);
+	// Generate an identity matrix, except with the rows between start and stop kept only
+	row_idx = 0;
+	for(row = 0; row < rows; row++){
+		// Only keep rows inside the slice list in normal mode, only keep rows outside in invert mode
+		cond = row >= start && row < stop;
+		// If this is a row to keep, create a proper identity row
+		if(cond){
+			for(col = 0; col < rows; col++){
+				if(col == row) sel_mat->data[IDX_M(*sel_mat, row_idx, col)] = 1.0;
+				else sel_mat->data[IDX_M(*sel_mat, row_idx, col)] = 0.0;
+			}
+			row_idx++;
+		}
+	}
+	// Return the finished selection matrix
+	return sel_mat;
+}
+
+Matrix_t* mslice(const Matrix_t* in, Matrix_t* out, int start, int stop, int t){
+	Matrix_t *sel, *out_pre, *in_scaled;
+	// Allocate
+	out_pre = mnew(2, 2);
+	in_scaled = mnew(1, 1);
+	// Check for null
+	if(in == NULL) return NULL;
+	// Transpose the matrix if we are selecting rows and not columns
+	if(t == 1) {
+		mtrns(in, in_scaled);
+	}
+	else
+	{
+		mscale(in, 1.0, in_scaled);
+	}
+	// Sanity check on input
+	if(stop > in_scaled->rows) stop = in_scaled->rows;
+	// Generate the selection matrix*
+	sel = msel(in_scaled->rows, start, stop);
+	// Apply the selection matrix
+	mmul(sel, in_scaled, out_pre);
+	// Transpose back if necessary
+	if(t == 1){
+		mtrns(out_pre, out);
+		mfree(out_pre);
+		mfree(in_scaled);
+	}
+	else {
+		// TODO: Implement mcopy function
+		if(mrealloc(out, out_pre->rows, out_pre->cols) != 0) return NULL;
+		for(int i = 0; i < out->rows*out->cols; i++){
+			out->data[i] = out_pre->data[i];
+		}
+		out = out_pre;
+	}
+	// Free up variable
+	mfree(sel);
+	// Return the sliced matrix
 	return out;
 }

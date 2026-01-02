@@ -225,6 +225,39 @@ static char* test_mtrns(){
 	return NULL;
 }
 
+
+static char* test_mslice(){
+	Matrix_t *a, *b, *out;
+	double a_data[6] = {
+		1., 2., 3.,
+		4., 5., 6.
+	};
+	double b_data[6] = {
+		1., 4.,
+		2., 5.,
+		3., 6.
+	};
+
+	// Convert arrays into matrices
+	a = mnew(2,3);
+	b = mnew(3,2);
+	out = mnew(1,1);
+	memcpy(a->data, a_data, sizeof(a_data));
+	memcpy(b->data, b_data, sizeof(b_data));
+
+	// Run tests
+	mslice(b, out, 0, 2, 0);
+	mu_assert("Sliced size is wrong!", out->rows == 2 && out->cols == 2);
+	// TODO: Test transposed
+
+	/* Free variables */
+	mfree(a);
+	mfree(b);
+	mfree(out);
+
+	return NULL;
+}
+
 static char* all_tests(){
 	mu_run_test(test_mnew);
 	mu_run_test(test_mcmp);
@@ -233,6 +266,7 @@ static char* all_tests(){
 	mu_run_test(test_mscale);
 	mu_run_test(test_mhad);
 	mu_run_test(test_mtrns);
+	mu_run_test(test_mslice);
 	return NULL;
 }
 
