@@ -248,7 +248,11 @@ static char* test_mslice(){
 	// Run tests
 	mslice(b, out, 0, 2, 0);
 	mu_assert("Sliced size is wrong!", out->rows == 2 && out->cols == 2);
+	mu_assert("Values are wrong!", out->data[3] != 5 || out->data[0] != 1);
 	// TODO: Test transposed
+	mslice(a, out, 0, 2, 1);
+	mu_assert("Sliced size is wrong!", out->rows == 2 && out->cols == 2);
+	mu_assert("Values are wrong!", out->data[3] != 5 || out->data[0] != 1);
 
 	/* Free variables */
 	mfree(a);
