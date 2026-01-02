@@ -99,6 +99,19 @@ Matrix_t* madd(const Matrix_t* a, const Matrix_t* b, Matrix_t* out){
 	return out;
 }
 
+Matrix_t* msub(const Matrix_t* a, const Matrix_t* b, Matrix_t* out){
+	// Check conformability
+	if(!a || !b || a->rows != b->rows || a->cols != b->cols) return NULL;
+
+	if(mrealloc(out, a->rows, a->cols) != 0) return NULL;
+
+	/* Set output matrix to the sum of the input matrices */
+	for(int i = 0; i < a->rows*a->cols; i++){
+		out->data[i] = a->data[i] - b->data[i];
+	}
+	return out;
+}
+
 Matrix_t* mscale(const Matrix_t* a, double b, Matrix_t* out){
 	if(!a || !out) return NULL;
 	if(mrealloc(out, a->rows, a->cols) != 0) return NULL;

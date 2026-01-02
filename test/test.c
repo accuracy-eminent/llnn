@@ -4,6 +4,8 @@
 #include <math.h>
 #include "minunit.h"
 #include "../src/matrix.h"
+#include "../src/activ.h"
+#include "../src/loss.h"
 
 int tests_run = 0;
 
@@ -266,6 +268,38 @@ static char* test_mslice(){
 	return NULL;
 }
 
+static char* test_asmax(){
+	Matrix_t *a, *smax;
+	a = mnew(3, 1);
+	a->data[0] = 1.0;
+	a->data[1] = 2.0;
+	a->data[2] = 3.0;
+	smax = asmax(a);
+	mu_assert("Output size is wrong!", smax->cols == a->cols && smax->rows == a->rows);
+	mu_assert("Softmax values do not sum to 1!\n", fabs(smax->data[0] + smax->data[1] + smax->data[2] - 1.0) < 0.01);
+	mfree(a);
+	mfree(smax);
+	return NULL;
+}
+
+static char* test_lmse()
+{
+	Matrix_t *a, *b;
+	a = mnew(1, 3);
+	b = mnew(1, 3);
+	a->data[0] = 1.0;
+	a->data[1] = 1.0;
+	a->data[2] = 1.0;
+	b->data[0] = 0.0;
+	b->data[1] = 0.0;
+	b->data[2] = 0.0;
+	// double lmse(const Matrix_t* actual, const Matrix_t* pred);
+	double res = lmse(a, b);
+	mu_assert("MSE != 1.0", res == 1.0);
+	return NULL;
+}
+
+
 static char* all_tests(){
 	mu_run_test(test_mnew);
 	mu_run_test(test_mcmp);
@@ -275,6 +309,8 @@ static char* all_tests(){
 	mu_run_test(test_mhad);
 	mu_run_test(test_mtrns);
 	mu_run_test(test_mslice);
+	mu_run_test(test_asmax);
+	mu_run_test(test_lmse);
 	return NULL;
 }
 
