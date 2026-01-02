@@ -126,6 +126,20 @@ double mfrob(const Matrix_t* a){
 	return sqrt(sum);
 }
 
+Matrix_t* mrand(int rows, int cols, double min, double max, Matrix_t* out){
+	// Allocate output matrix and check for null
+	if(mrealloc(out, rows, cols) != 0) return NULL;
+	if(!out)return NULL;
+
+	/* Fill with random values */
+	for(int i = 0; i < rows*cols; i++){
+		double std_rand = (double)(rand() % 100000) / 100000.0;
+		out->data[i] = (std_rand * (max - min)) + min;
+	}
+
+	return out;
+}
+
 
 Matrix_t* mscale(const Matrix_t* a, double b, Matrix_t* out){
 	if(!a || !out) return NULL;

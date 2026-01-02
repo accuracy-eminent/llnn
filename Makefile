@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=c99 -pedantic -Wall -Wextra $(EFLAGS)
+CFLAGS=-std=c99 -pedantic -Wall -Wextra -ggdb3 $(EFLAGS)
 LDFLAGS=-lm
 
 SRC_DIR=./src

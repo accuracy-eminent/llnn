@@ -6,6 +6,7 @@
 #include "../src/matrix.h"
 #include "../src/activ.h"
 #include "../src/loss.h"
+#include "../src/nn.h"
 
 int tests_run = 0;
 
@@ -280,6 +281,16 @@ static char* test_mfrob(){
 	return NULL;
 }
 
+static char* test_mrand()
+{
+	Matrix_t *a;
+	a = mnew(3, 3);
+	mrand(3, 3, 1.0, 2.0, a);
+	mu_assert("Values are not in the correct range!", a->data[0] >= 1.0 && a->data[0] <= 2.0 && a->data[1] >= 1.0 && a->data[1] <= 2.0 && a->data[0] != a->data[1]);
+	mfree(a);
+	return NULL;
+}
+
 static char* test_asmax(){
 	Matrix_t *a, *smax;
 	a = mnew(3, 1);
@@ -311,6 +322,15 @@ static char* test_lmse()
 	return NULL;
 }
 
+static char* test_ninit()
+{
+	llnn_network_t *nn = ninit(2, 2, 4, 2, &arelu, NULL);
+	mu_assert("Weights are NULL", nn->weights != NULL);
+	mu_assert("Biases are NULL", nn->biases != NULL);
+	mu_assert("First layer should be hiddens x inputs", nn->weights[0]->rows == 4 && nn->weights[0]->cols == 2);
+	return NULL;
+}
+
 
 static char* all_tests(){
 	mu_run_test(test_mnew);
@@ -322,8 +342,10 @@ static char* all_tests(){
 	mu_run_test(test_mtrns);
 	mu_run_test(test_mslice);
 	mu_run_test(test_mfrob);
+	mu_run_test(test_mrand);
 	mu_run_test(test_asmax);
 	mu_run_test(test_lmse);
+	mu_run_test(test_ninit);
 	return NULL;
 }
 
