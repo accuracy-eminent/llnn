@@ -112,6 +112,21 @@ Matrix_t* msub(const Matrix_t* a, const Matrix_t* b, Matrix_t* out){
 	return out;
 }
 
+// Frobenius norm
+double mfrob(const Matrix_t* a){
+	double sum = 0;
+
+	if(!a)return 0.0;
+
+	for(int i = 0; i < a->rows * a->cols; i++)
+	{
+		sum += a->data[i] * a->data[i];
+	}
+
+	return sqrt(sum);
+}
+
+
 Matrix_t* mscale(const Matrix_t* a, double b, Matrix_t* out){
 	if(!a || !out) return NULL;
 	if(mrealloc(out, a->rows, a->cols) != 0) return NULL;

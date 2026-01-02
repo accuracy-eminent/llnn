@@ -16,9 +16,11 @@ Matrix_t* mmul(const Matrix_t* a, const Matrix_t* b, Matrix_t *out);
 int mcmp(const Matrix_t* a, const Matrix_t* b);
 Matrix_t* madd(const Matrix_t* a, const Matrix_t* b, Matrix_t* out);
 Matrix_t* msub(const Matrix_t* a, const Matrix_t* b, Matrix_t* out);
+double mfrob(const Matrix_t* a);
 Matrix_t* mscale(const Matrix_t* a, double b, Matrix_t* out);
 Matrix_t* mhad(const Matrix_t* a, const Matrix_t* b, Matrix_t* out);
 Matrix_t* mtrns(const Matrix_t* a, Matrix_t* out);
 Matrix_t* mslice(const Matrix_t* in, Matrix_t* out, int start, int stop, int t);
+
 
 #endif

@@ -268,6 +268,18 @@ static char* test_mslice(){
 	return NULL;
 }
 
+
+static char* test_mfrob(){
+	Matrix_t *a;
+	a = mnew(3, 1);
+	a->data[0] = 3.0;
+	a->data[1] = 4.0;
+	double norm = mfrob(a);
+	mu_assert("Norm != 5", fabs(norm - 5.0) < 0.1);
+	mfree(a);
+	return NULL;
+}
+
 static char* test_asmax(){
 	Matrix_t *a, *smax;
 	a = mnew(3, 1);
@@ -309,6 +321,7 @@ static char* all_tests(){
 	mu_run_test(test_mhad);
 	mu_run_test(test_mtrns);
 	mu_run_test(test_mslice);
+	mu_run_test(test_mfrob);
 	mu_run_test(test_asmax);
 	mu_run_test(test_lmse);
 	return NULL;
