@@ -48,7 +48,7 @@ llnn_network_t* ninit(int inputs, int hidden_layers, int hiddens, int outputs, d
 	// Allocate the output layer. This maps R^hiddens -> R^outputs, so it is outputs x hiddens
     nn->weights[hidden_layers] = mnew(1, 1);
 	mrand(outputs, hiddens, -1.0, 1.0, nn->weights[hidden_layers]);
-    printf("Output weight layer (%d) dimensions: %d x %d, outputs: %d, hiddens: %d\n", hidden_layers, nn->weights[hidden_layers]->rows, nn->weights[hidden_layers]->cols, outputs, hiddens);
+    DEBUG_PRINTF("Output weight layer (%d) dimensions: %d x %d, outputs: %d, hiddens: %d\n", hidden_layers, nn->weights[hidden_layers]->rows, nn->weights[hidden_layers]->cols, outputs, hiddens);
 	// Last bias added to output, so it should be in R^outputs
     nn->biases[hidden_layers] = mnew(1, 1);
 	mrand(outputs, 1, -1.0, 1.0, nn->biases[hidden_layers]);
@@ -72,11 +72,11 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 		Matrix_t *res;
 		// Apply the weights and biases
         DEBUG_PRINTF("---Size of weights on layer %d is %d x %d, weights are:\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
-		mprint(nn->weights[layer]);
+		DEBUG_MPRINT(nn->weights[layer]);
         // TODO: why is reallocation failing here
 		res = mmul(nn->weights[layer], current_vector, product);
 		DEBUG_PRINTF("Multiplication results:\n");
-		mprint(res);
+		DEBUG_MPRINT(res);
 		DEBUG_PRINTF("Product dimensions: %d, %d, res: %p\n", product->rows, product->cols, (void *)res);
 		madd(product, nn->biases[layer], sum);
         DEBUG_PRINTF("Sum dimensions: %d, %d\n", sum->rows, sum->cols);
@@ -92,7 +92,7 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 			mscale(sum, 1.0, current_vector);
 		}
 		DEBUG_PRINTF("Final current_vector dimensions: %d x %d\n", current_vector->rows, current_vector->cols);
-		mprint(current_vector);
+		DEBUG_MPRINT(current_vector);
 	}
 
 	// Apply output activation, if applicable
@@ -101,7 +101,7 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 		mfree(current_vector);
 		current_vector = sum;
 	}
-    printf("current_vector dimensions: %d, %d\n", current_vector->rows, current_vector->cols);
+    DEBUG_PRINTF("current_vector dimensions: %d, %d\n", current_vector->rows, current_vector->cols);
 
     // TODO: Free current_vector better
     mfree(sum);
