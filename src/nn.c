@@ -67,10 +67,14 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 	mscale(x, 1.0, current_vector);
 	// There are 1 less weights than layers
 	for(layer = 0; layer < nn->n_layers - 1; layer++){
+		Matrix_t *res;
+		mfree(product);
+		product = mnew(1,1);
 		// Apply the weights and biases
         printf("Size of weights on layer %d is %d x %d\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
         // TODO: why is reallocation failing here
-		mmul(nn->weights[layer], current_vector, product);
+		res = mmul(nn->weights[layer], current_vector, product);
+		printf("Product dimensions: %d, %d, res: %p\n", product->rows, product->cols, (void *)res);
 		madd(product, nn->biases[layer], sum);
         printf("Sum dimensions: %d, %d\n", sum->rows, sum->cols);
 
