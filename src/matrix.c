@@ -275,3 +275,20 @@ Matrix_t* mapply(const Matrix_t* a, dfunc func, Matrix_t* out){
 
 	return out;
 }
+
+void mprint(const Matrix_t* x){
+	int col;
+	int row;
+
+	if(!x)return;
+
+	printf("[\n");
+	for(row = 0; row < x->rows; row++){
+		printf("[\t");
+		for(col = 0; col < x->cols; col++){
+			printf("%f\t",(x->data)[IDX_M(*x, row, col)]);
+		}
+		printf("]\n");
+	}
+	printf("]\n");
+}

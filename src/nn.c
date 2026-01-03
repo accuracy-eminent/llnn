@@ -66,16 +66,17 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 	if(!nn || !x || !nn->weights || !nn->biases)return NULL;
 
 	mscale(x, 1.0, current_vector);
+	mprint(x);
 	// There are 1 less weights than layers
 	for(layer = 0; layer < nn->n_layers - 1; layer++){
 		Matrix_t *res;
-		//mtrns(current_vector, current_vector);
-		//mfree(product);
-		//product = mnew(1,1);
 		// Apply the weights and biases
-        DEBUG_PRINTF("---Size of weights on layer %d is %d x %d\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
+        DEBUG_PRINTF("---Size of weights on layer %d is %d x %d, weights are:\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
+		mprint(nn->weights[layer]);
         // TODO: why is reallocation failing here
 		res = mmul(nn->weights[layer], current_vector, product);
+		DEBUG_PRINTF("Multiplication results:\n");
+		mprint(res);
 		DEBUG_PRINTF("Product dimensions: %d, %d, res: %p\n", product->rows, product->cols, (void *)res);
 		madd(product, nn->biases[layer], sum);
         DEBUG_PRINTF("Sum dimensions: %d, %d\n", sum->rows, sum->cols);
@@ -91,6 +92,7 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 			mscale(sum, 1.0, current_vector);
 		}
 		DEBUG_PRINTF("Final current_vector dimensions: %d x %d\n", current_vector->rows, current_vector->cols);
+		mprint(current_vector);
 	}
 
 	// Apply output activation, if applicable

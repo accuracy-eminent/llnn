@@ -27,6 +27,6 @@ Matrix_t* mhad(const Matrix_t* a, const Matrix_t* b, Matrix_t* out);
 Matrix_t* mtrns(const Matrix_t* a, Matrix_t* out);
 Matrix_t* mslice(const Matrix_t* in, Matrix_t* out, int start, int stop, int t);
 Matrix_t* mapply(const Matrix_t* a, dfunc func, Matrix_t* out);
-
+void mprint(const Matrix_t* x);
 
 #endif
