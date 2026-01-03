@@ -5,6 +5,7 @@
 #include "nn.h"
 #include "loss.h"
 #include "activ.h"
+#include "llnn.h"
 
 llnn_network_t* ninit(int inputs, int hidden_layers, int hiddens, int outputs, dfunc hidden_activ, mfunc output_activ){
 	llnn_network_t *nn;
@@ -68,23 +69,28 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 	// There are 1 less weights than layers
 	for(layer = 0; layer < nn->n_layers - 1; layer++){
 		Matrix_t *res;
-		mfree(product);
-		product = mnew(1,1);
+		//mtrns(current_vector, current_vector);
+		//mfree(product);
+		//product = mnew(1,1);
 		// Apply the weights and biases
-        printf("Size of weights on layer %d is %d x %d\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
+        DEBUG_PRINTF("---Size of weights on layer %d is %d x %d\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
         // TODO: why is reallocation failing here
 		res = mmul(nn->weights[layer], current_vector, product);
-		printf("Product dimensions: %d, %d, res: %p\n", product->rows, product->cols, (void *)res);
+		DEBUG_PRINTF("Product dimensions: %d, %d, res: %p\n", product->rows, product->cols, (void *)res);
 		madd(product, nn->biases[layer], sum);
-        printf("Sum dimensions: %d, %d\n", sum->rows, sum->cols);
+        DEBUG_PRINTF("Sum dimensions: %d, %d\n", sum->rows, sum->cols);
 
 		// Apply the activation function, if it exists, but not on the output layer
 		if(nn->hidden_activ && layer < nn->n_layers-1){
+			DEBUG_PRINTF("Mscale NOT applying...\n");
 			mapply(sum, nn->hidden_activ, current_vector);
 		}
 		else{
+			DEBUG_PRINTF("Mscale applying..\n");
+			// TODO: Why is mscale() switching dimensions?
 			mscale(sum, 1.0, current_vector);
 		}
+		DEBUG_PRINTF("Final current_vector dimensions: %d x %d\n", current_vector->rows, current_vector->cols);
 	}
 
 	// Apply output activation, if applicable

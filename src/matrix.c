@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "matrix.h"
+#include "llnn.h"
 
 int mrealloc(Matrix_t *x, int rows, int cols){
 	if(!x) return 1;
@@ -63,11 +64,15 @@ Matrix_t* mmul(const Matrix_t* a, const Matrix_t* b, Matrix_t *out){
     // TODO: Better error handling, print when null is happening
 	if(!a || !b) return NULL;
 	if(a->cols != b->rows){
+		DEBUG_PRINTF("Matrices not conformable with a: %d x %d, b: %d x %d\n", a->rows, a->cols, b->rows, b->cols);
 		return NULL;
 	}
 
 	// Matrix dimensions: (n x m) * (m x k) = (n x k)
-	if(mrealloc(out, a->rows, b->cols) != 0) return NULL;
+	if(mrealloc(out, a->rows, b->cols) != 0){
+		DEBUG_PRINTF("Reallocation failed!\n");
+		return NULL;
+	} 
 
 
 	//For each row in matrix a
@@ -143,7 +148,10 @@ Matrix_t* mrand(int rows, int cols, double min, double max, Matrix_t* out){
 
 Matrix_t* mscale(const Matrix_t* a, double b, Matrix_t* out){
 	if(!a || !out) return NULL;
-	if(mrealloc(out, a->rows, a->cols) != 0) return NULL;
+	if(mrealloc(out, a->rows, a->cols) != 0){
+		DEBUG_PRINTF("mrealloc failed!\n");
+		return NULL;
+	}
 
 	for(int i = 0; i < a->rows*a->cols; i++){
 		out->data[i] = a->data[i] * b;
@@ -257,7 +265,8 @@ Matrix_t* mapply(const Matrix_t* a, dfunc func, Matrix_t* out){
 
 	// Allocate output matrix and check for NULL
 	if(!out)return NULL;
-	if(mrealloc(out, a->cols, a->rows) != 0) return NULL;
+	// TODO: Add mapply test
+	if(mrealloc(out, a->rows, a->cols) != 0) return NULL;
 
 	/* Set each cell of the output matrix to func(input matrix cell) */
 	for(int i = 0; i < a->rows*a->cols; i++){

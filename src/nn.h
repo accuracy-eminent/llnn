@@ -10,7 +10,7 @@ typedef struct neural_network {
 	mfunc output_activ; // Output layer activation (f: Matrix*->Matrix*)
 	int n_layers;
 } llnn_network_t;
-#define SQR(x) ((x)*(x))
+
 llnn_network_t* ninit(int inputs, int hidden_layers, int hiddens, int outputs, dfunc hidden_activ, mfunc output_activ);
 Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out);
 #endif
