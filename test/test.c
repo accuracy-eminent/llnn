@@ -284,10 +284,20 @@ static char* test_mfrob(){
 static char* test_mrand()
 {
 	Matrix_t *a;
+	int plus_count = 0;
+	int minus_count = 0;
 	a = mnew(3, 3);
 	mrand(3, 3, 1.0, 2.0, a);
 	mu_assert("Values are not in the correct range!", a->data[0] >= 1.0 && a->data[0] <= 2.0 && a->data[1] >= 1.0 && a->data[1] <= 2.0 && a->data[0] != a->data[1]);
 	mfree(a);
+	// Test positive and negative values
+	a = mnew(2, 10);
+	mrand(2, 10, -1.0, 1.0, a);
+	for(int i = 0; i < a->rows*a->cols; i++){
+		if(a->data[i] < 0)minus_count++;
+		else if(a->data[i] > 0)plus_count++;
+	}
+	mu_assert("Mrand() not producing both positive and negative numbers!\n", plus_count > 0 && minus_count > 0);
 	return NULL;
 }
 

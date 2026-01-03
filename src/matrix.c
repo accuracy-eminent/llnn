@@ -138,7 +138,7 @@ Matrix_t* mrand(int rows, int cols, double min, double max, Matrix_t* out){
 
 	/* Fill with random values */
 	for(int i = 0; i < rows*cols; i++){
-		double std_rand = (double)(rand() % 100000) / 100000.0;
+		double std_rand = (double)(rand() % 32767) / 32767.0;
 		out->data[i] = (std_rand * (max - min)) + min;
 	}
 
