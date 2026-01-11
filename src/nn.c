@@ -117,9 +117,9 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 }
 
 
-static Matrix_t* ndiff(const Matrix_t* x, const dfunc activ_func){
+Matrix_t* ndiff(const Matrix_t* x, const dfunc activ_func, Matrix_t *d_activ){
 	double h = 0.000001;
-	Matrix_t *activ_x, *activ_xh, *xh, *h_mat, *d_activ;
+	Matrix_t *activ_x, *activ_xh, *xh, *h_mat;
 
 	if(!x || !activ_func) return NULL;
 
@@ -127,7 +127,7 @@ static Matrix_t* ndiff(const Matrix_t* x, const dfunc activ_func){
 	xh = mnew(x->rows, x->cols);
 	activ_x = mnew(x->rows, x->cols);
 	activ_xh = mnew(x->rows, x->cols);
-	d_activ = mnew(x->rows, x->cols);
+    if(mrealloc(d_activ, x->rows, x->cols) != 0) return NULL;
 	// TODO: check nulls
 
 	// Vector of x + h
@@ -137,7 +137,7 @@ static Matrix_t* ndiff(const Matrix_t* x, const dfunc activ_func){
 	}
 	madd(x, h_mat, xh);
 
-	// Numerically calculate derivative of activ_func wrt x.
+	/* Numerically calculate derivative of activ_func wrt x.
 	d_activ = (f(x+h)-f(x))/h */
 	// Numerator (f(x+h)-f(x))
 	mapply(x, activ_func, activ_x);

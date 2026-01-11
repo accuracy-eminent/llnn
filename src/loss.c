@@ -1,6 +1,7 @@
 #include "matrix.h"
 #include "nn.h"
 #include "loss.h"
+#include "llnn.h"
 
 
 double lmse(const Matrix_t* actual, const Matrix_t* pred){

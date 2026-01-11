@@ -357,6 +357,29 @@ static char* test_npred()
 	return NULL;
 }
 
+static char* test_ndiff()
+{
+	// For reLU, f'(x) will be 1 if x>0, 0 otherwise 
+	Matrix_t *x, *xd;
+	x = mnew(2, 2);
+	xd = mnew(2, 2);
+	x->data[0] = 5;
+	x->data[1] = -20;
+	x->data[2] = 30;
+	x->data[3] = 4;
+
+	ndiff(x, &arelu, xd);
+
+	mu_assert("xd->0 != 1", fabs(xd->data[0] - 1.0) < 0.1);
+	mu_assert("xd->1 != 0", fabs(xd->data[1] - 0.0) < 0.1 );
+	mu_assert("xd->2 != 1", fabs(xd->data[0] - 1.0) < 0.1);
+	mu_assert("xd->3 != 1", fabs(xd->data[0] - 1.0) < 0.1);
+	
+	mfree(x);
+	mfree(xd);
+	return NULL;
+}
+
 
 static char* all_tests(){
 	mu_run_test(test_mnew);
@@ -373,6 +396,7 @@ static char* all_tests(){
 	mu_run_test(test_lmse);
 	mu_run_test(test_ninit);
 	mu_run_test(test_npred);
+	mu_run_test(test_ndiff);
 	return NULL;
 }
 
