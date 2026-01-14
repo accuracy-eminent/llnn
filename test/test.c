@@ -380,6 +380,28 @@ static char* test_ndiff()
 	return NULL;
 }
 
+static char* test_nbprop()
+{
+	// Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train, const lfunc loss_func, const lfuncd dloss_func){
+	Matrix_t *xt, *yt;
+
+	// TODO: Get dimensions right
+	xt = mnew(4, 1);
+	xt->data[0] = 1;
+	xt->data[1] = 2;
+	xt->data[2] = 3;
+	xt->data[3] = 4;
+	yt = mnew(4, 1);
+	yt->data[0] = 2;
+	yt->data[1] = 4;
+	yt->data[2] = 6;
+	yt->data[3] = 8;
+	llnn_network_t *nn = ninit(2, 2, 4, 2, &asigm, NULL);
+	nbprop(nn, xt, yt, lmse, dmse);
+	// TODO: Check results
+	return NULL;
+}
+
 
 static char* all_tests(){
 	mu_run_test(test_mnew);
@@ -397,6 +419,7 @@ static char* all_tests(){
 	mu_run_test(test_ninit);
 	mu_run_test(test_npred);
 	mu_run_test(test_ndiff);
+	mu_run_test(test_nbprop);
 	return NULL;
 }
 

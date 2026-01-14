@@ -14,4 +14,6 @@ typedef struct neural_network {
 llnn_network_t* ninit(int inputs, int hidden_layers, int hiddens, int outputs, dfunc hidden_activ, mfunc output_activ);
 Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out);
 Matrix_t* ndiff(const Matrix_t* x, const dfunc activ_func, Matrix_t *d_activ);
+Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train, const lfunc loss_func,
+				 const lfuncd dloss_func);
 #endif
