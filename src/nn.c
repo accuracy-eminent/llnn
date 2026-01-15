@@ -279,6 +279,7 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 	nabla_b[nn->n_layers - 2] = mnew(1, 1);
 	mscale(delta, 1, nabla_b[nn->n_layers - 2]); /* Equation BP3 */ // Was null
 	/* nabla_w[-1] = np.dot(delta, activations[-2].transpose()) */
+	nabla_w[nn->n_layers - 2] = mnew(1, 1);
 	mmul(delta, last_activation, nabla_w[nn->n_layers - 2]); /* Equation BP4 */ // Was null
 
 	mfree(err);
@@ -298,6 +299,7 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 	*/
 	
 	for(layer_fwd = 2; layer_fwd < nn->n_layers; layer_fwd++){
+		tmp = mnew(1, 1);
 		int layer = nn->n_layers - layer_fwd; /* Account for only n_layers - 1 weights, but also add 1 */
 		Matrix_t *transposed_weights;
 		

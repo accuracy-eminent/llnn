@@ -386,16 +386,12 @@ static char* test_nbprop()
 	Matrix_t *xt, *yt;
 
 	// TODO: Get dimensions right
-	xt = mnew(4, 1);
+	xt = mnew(2, 1);
 	xt->data[0] = 1;
 	xt->data[1] = 2;
-	xt->data[2] = 3;
-	xt->data[3] = 4;
-	yt = mnew(4, 1);
+	yt = mnew(2, 1);
 	yt->data[0] = 2;
 	yt->data[1] = 4;
-	yt->data[2] = 6;
-	yt->data[3] = 8;
 	llnn_network_t *nn = ninit(2, 2, 4, 2, &asigm, NULL);
 	nbprop(nn, xt, yt, lmse, dmse);
 	// TODO: Check results
