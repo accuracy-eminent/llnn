@@ -9,6 +9,7 @@ int mrealloc(Matrix_t *x, int rows, int cols){
 	if(x->rows != rows || x->cols != cols)
 	{
 		free(x->data);
+		x->data = NULL;
 		x->data = calloc(rows, cols * sizeof(double));
 		if(!x->data)
 		{
@@ -54,6 +55,7 @@ Matrix_t* mnew(int rows, int cols){
 void mfree(Matrix_t* x){
 	if(!x) return;
 	free(x->data);
+	x->data = NULL;
 	free(x);
 }
 
