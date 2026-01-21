@@ -248,7 +248,7 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 		
 		mfree(tmp);
 	}
-
+	tmp = NULL;
 	/* Calculate output delta*/
 	/* delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(zs[-1]) */
 	delta = dloss_func(activation, y_train); /* Derviative of loss function wrt output activations */
@@ -260,8 +260,8 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 	
 	
 	
-	
-	ndiff(Zs[nn->n_layers - 2], nn->hidden_activ, err); /* Derivative of activation function wrt output Z vector */
+	// TODO: Allocate Zs[nn->n_layers - 2] and check for 0 rows or 0 columns in ndiff()
+	ndiff(Zs[nn->n_layers - 2], nn->hidden_activ, err); // Derivative of activation function wrt output Z vector TODO: Why is this overwriting delta
 	/*err = mapply(Zs[nn->n_layers - 2], &dsigm, NULL);*/
 	
 	
@@ -332,7 +332,7 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 		/* tmp = np.dot(self.weights[-l+1].transpose(), delta) */
 		transposed_weights = mnew(1,1);
 		mtrns(nn->weights[layer], transposed_weights); /* Transposed weights of next layer */ // Was null
-		mmul(transposed_weights, delta, tmp);
+		mmul(transposed_weights, delta, tmp); // TODO: Not conformable, weights are 4x2, delta is 1x1
 		/* delta = tmp * sp */
 		
 		
