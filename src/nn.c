@@ -247,8 +247,8 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 		activations[layer + 1] = activation;
 		
 		mfree(tmp);
+		tmp = NULL;
 	}
-	tmp = NULL;
 	/* Calculate output delta*/
 	/* delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(zs[-1]) */
 	delta = dloss_func(activation, y_train); /* Derviative of loss function wrt output activations */
@@ -285,6 +285,9 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 	mfree(err);
 	mfree(tmp);
 	mfree(last_activation);
+	tmp = NULL;
+	err = NULL;
+	last_activation = NULL;
 
 	/*  for l in xrange(2, self.num_layers): */
 	/* In 4 layer network:
@@ -368,6 +371,10 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 		mfree(last_activation);
 		mfree(activationp);
 		mfree(tmp);
+		transposed_weights = NULL;
+		last_activation = NULL;
+		activationp = NULL;
+		tmp = NULL;
 	}
 
 
@@ -378,11 +385,17 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 		
 		
 		mfree(activations[layer]);
+		Zs[layer] = NULL;
+		activations[layer] = NULL;
 	}
 	mfree(tmp2);
 	mfree(delta);
 	free(activations);
 	free(Zs);
+	tmp2 = NULL;
+	delta = NULL;
+	activations = NULL;
+	Zs = NULL;
 
 	/* Package up and return pointer to gradients */
 	nablas = malloc(2 * sizeof(Matrix_t**));
