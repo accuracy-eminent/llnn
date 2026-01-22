@@ -393,14 +393,19 @@ static char* test_nbprop()
 	yt = mnew(2, 1);
 	yt->data[0] = 3;
 	yt->data[1] = 5;
+	// input is 4 wide, 2 hidden layers, hidden layers are 4 wide, output is 2 wide 
 	llnn_network_t *nn = ninit(2, 2, 4, 2, &asigm, NULL);
 	nablas = nbprop(nn, xt, yt, lmse, dmse);
-	printf("Nablas:\n");
-	mprint(nablas[0][0]);
-	mprint(nablas[0][1]);
-	mprint(nablas[1][0]);
-	mprint(nablas[1][1]);
-	// TODO: Check results
+	// For now, check that we don't have all zeroes
+	mu_assert("All zeroes in weights in nbprop()!", nablas[0][0]->data[0] != 0 || nablas[0][0]->data[1] != 0);
+	mu_assert("All zeroes in biases in nbprop()!", nablas[1][0]->data[0] != 0 || nablas[1][0]->data[1] != 0);
+	// Check dimensions
+	mu_assert("1st nabla should be 2 input layer -> 4 hidden layer 1", nablas[0][0]->cols == 2 && nablas[0][0]->rows == 4);
+	mu_assert("2nd nabla should be 4 hidden layer 1 -> 4 hidden layer 2", nablas[0][1]->cols == 4 && nablas[0][1]->rows == 4);
+	mu_assert("2nd nabla should be 4 hidden layer 2 -> 2 output layer", nablas[0][2]->cols == 4 && nablas[0][2]->rows == 2);
+	mu_assert("1st nabla bias should be 4 hidden layer 1", nablas[1][0]->cols == 1 && nablas[1][0]->rows == 4);
+	mu_assert("2nd nabla bias should be 4 hidden layer 2", nablas[1][1]->cols == 1 && nablas[1][1]->rows == 4);
+	mu_assert("2nd nabla bias should be 2 output layer", nablas[1][2]->cols == 1 && nablas[1][2]->rows == 2);
 	return NULL;
 }
 
