@@ -319,7 +319,7 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 		/*activationp = mapply(z, drelu, NULL);*/
 		/* last_activation = activations[-l-1].transpose() */
 		last_activation = mnew(1, 1);
-		activations[layer - 1] = mnew(1, 1); // ?
+		//activations[layer - 1] = mnew(1, 1); // ?
 		mtrns(activations[layer - 1], last_activation); /* Transpose of activation of layer n-1 */ // Was null
 		
 		
