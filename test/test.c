@@ -384,16 +384,22 @@ static char* test_nbprop()
 {
 	// Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train, const lfunc loss_func, const lfuncd dloss_func){
 	Matrix_t *xt, *yt;
+	Matrix_t ***nablas;
 
 	// TODO: Get dimensions right
 	xt = mnew(2, 1);
 	xt->data[0] = 1;
 	xt->data[1] = 2;
 	yt = mnew(2, 1);
-	yt->data[0] = 2;
-	yt->data[1] = 4;
+	yt->data[0] = 3;
+	yt->data[1] = 5;
 	llnn_network_t *nn = ninit(2, 2, 4, 2, &asigm, NULL);
-	nbprop(nn, xt, yt, lmse, dmse);
+	nablas = nbprop(nn, xt, yt, lmse, dmse);
+	printf("Nablas:\n");
+	mprint(nablas[0][0]);
+	mprint(nablas[0][1]);
+	mprint(nablas[1][0]);
+	mprint(nablas[1][1]);
 	// TODO: Check results
 	return NULL;
 }

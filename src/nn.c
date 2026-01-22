@@ -358,8 +358,11 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 		/* nabla_w[-l] = np.dot(delta, activations[-l-1].transpose()) */
 		nabla_w[layer - 1] = mnew(1, 1);
 		mmul(delta, last_activation, nabla_w[layer - 1]); /* Equation BP4 */
-		
-		
+		printf("^^^Delta:\n");
+		mprint(delta);
+		printf("^^^Last activation:\n");
+		mprint(last_activation);
+		// TODO: Why is last_activation always 0???
 		
 		
 		
