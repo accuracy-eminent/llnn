@@ -412,9 +412,10 @@ static char* test_nbprop()
 static char* test_ntrain()
 {
 	srand(42);
-	// Set up training data, y=2x+1
+	// Set up training data, y=2x+1 with error of +/- 0.2
 	Matrix_t *x = mnew(8, 1);
-	double x_data[8] = {-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0};
+	//double x_data[8] = {-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0};
+	double x_data[8] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
 	memcpy(x->data, x_data, sizeof(x_data));
 	Matrix_t *y = mnew(8, 1);
 	for(int i = 0; i < 8; i++)
@@ -423,8 +424,8 @@ static char* test_ntrain()
 	}
 	
 	// Train the network
-	llnn_network_t* nn = ninit(1, 2, 2, 1, &asigm, NULL);
-	ntrain(nn, x, y, lmse, dmse, 100, 0.01);
+	llnn_network_t* nn = ninit(1, 2, 8, 1, &alrelu, NULL);
+	ntrain(nn, x, y, lmse, dmse, 1900, 0.00001);
 
 	// Predict and get the mean squared error
 	Matrix_t *preds = mnew(x->rows, x->cols);

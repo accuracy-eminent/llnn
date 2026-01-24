@@ -7,7 +7,7 @@
 #include "activ.h"
 #include "llnn.h"
 
-#define NORM_MAX 1
+#define NORM_MAX 0.1
 
 llnn_network_t* ninit(int inputs, int hidden_layers, int hiddens, int outputs, dfunc hidden_activ, mfunc output_activ){
 	llnn_network_t *nn;
@@ -404,7 +404,8 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 	nablas[1] = nabla_b;
 	return nablas;
 }
-#define P_NTRAIN 1
+//#define P_NTRAIN 1
+#define CLIP 1
 void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train, const lfunc loss_func,
 			const lfuncd dloss_func, unsigned int epochs, double learning_rate){
 	Matrix_t *cur_X, *cur_y;
@@ -428,15 +429,20 @@ void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train
 		for(i = 0; i < y_train->cols; i++){
 			cur_y->data[IDX_M(*cur_y, i, 0)] = y_train->data[IDX_M(*y_train, current_row, i)];
 		}
+		#ifdef P_NTRAIN
 		printf("Cur X:\n");
 		mprint(cur_X);
 		printf("Cur Y:\n");
 		mprint(cur_y);
+		#endif
 
 		/* Start backprop with loss function */
-		gradients = nbprop(nn, cur_X, cur_y, loss_func, dloss_func); // TODO: Why are gradients 0??
+		gradients = nbprop(nn, cur_X, cur_y, loss_func, dloss_func); // TODO: Why are gradients 0?? Seems to be fixed
 		weight_gradients = gradients[0];
 		bias_gradients = gradients[1];
+		#ifdef P_NTRAIN
+		// TODO: Calculate loss
+		#endif
 
 		/* Backpropagate each layer */
 		/*printf("==========================Epoch: %d\n", epoch);*/
@@ -453,19 +459,24 @@ void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train
 			optimum. */
 			/* This needs to be repeated twice because of floating point overflow in the norm values,
 			which causes mfrob() to overflow to a negative value.*/
+			#ifdef CLIP
 			for(j = 0; j < 2; j++){
 				cur_weight_norm = fabs(mfrob(cur_weight_gradient));
 				cur_bias_norm = fabs(mfrob(cur_bias_gradient));
-				/*printf("1/CWN: %f, 1/CBN: %f", cur_weight_norm, cur_bias_norm);*/
+				//printf("1/CWN: %f, 1/CBN: %f", cur_weight_norm, cur_bias_norm);
 				if(cur_weight_norm > NORM_MAX){
+					printf("Clipping weight gradient: %f\n", cur_weight_norm);
 					mscale(cur_weight_gradient, 1/cur_weight_norm, cur_weight_gradient);
 					mscale(cur_weight_gradient, NORM_MAX, cur_weight_gradient);
+					mprint(cur_weight_gradient);
 				}
 				if(cur_bias_norm > NORM_MAX){
+					printf("Clipping bias gradient: %f\n", cur_bias_norm);
 					mscale(cur_bias_gradient, 1/cur_bias_norm, cur_bias_gradient);
 					mscale(cur_bias_gradient, NORM_MAX, cur_bias_gradient);
 				}
 			}
+			#endif
 			#ifdef P_NTRAIN
 			printf("---Layer %d---\n\n", i);
 			printf("Current weight gradient:\n");
