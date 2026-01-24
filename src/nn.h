@@ -16,4 +16,6 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out);
 Matrix_t* ndiff(const Matrix_t* x, const dfunc activ_func, Matrix_t *d_activ);
 Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train, const lfunc loss_func,
 				 const lfuncd dloss_func);
+void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train, const lfunc loss_func,
+			const lfuncd dloss_func, unsigned int epochs, double learning_rate);
 #endif

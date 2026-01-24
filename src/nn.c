@@ -7,6 +7,8 @@
 #include "activ.h"
 #include "llnn.h"
 
+#define NORM_MAX 1
+
 llnn_network_t* ninit(int inputs, int hidden_layers, int hiddens, int outputs, dfunc hidden_activ, mfunc output_activ){
 	llnn_network_t *nn;
 
@@ -71,28 +73,28 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 	for(layer = 0; layer < nn->n_layers - 1; layer++){
 		Matrix_t *res;
 		// Apply the weights and biases
-        DEBUG_PRINTF("---Size of weights on layer %d is %d x %d, weights are:\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
-		DEBUG_MPRINT(nn->weights[layer]);
+        //DEBUG_PRINTF("---Size of weights on layer %d is %d x %d, weights are:\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
+		//DEBUG_MPRINT(nn->weights[layer]);
         // TODO: why is reallocation failing here
 		res = mmul(nn->weights[layer], current_vector, product);
-		DEBUG_PRINTF("Multiplication results:\n");
-		DEBUG_MPRINT(res);
-		DEBUG_PRINTF("Product dimensions: %d, %d, res: %p\n", product->rows, product->cols, (void *)res);
+		//DEBUG_PRINTF("Multiplication results:\n");
+		//DEBUG_MPRINT(res);
+		//DEBUG_PRINTF("Product dimensions: %d, %d, res: %p\n", product->rows, product->cols, (void *)res);
 		madd(product, nn->biases[layer], sum);
-        DEBUG_PRINTF("Sum dimensions: %d, %d\n", sum->rows, sum->cols);
+        //DEBUG_PRINTF("Sum dimensions: %d, %d\n", sum->rows, sum->cols);
 
 		// Apply the activation function, if it exists, but not on the output layer
 		if(nn->hidden_activ && layer < nn->n_layers-1){
-			DEBUG_PRINTF("Mscale NOT applying...\n");
+			//DEBUG_PRINTF("Mscale NOT applying...\n");
 			mapply(sum, nn->hidden_activ, current_vector);
 		}
 		else{
-			DEBUG_PRINTF("Mscale applying..\n");
+			//DEBUG_PRINTF("Mscale applying..\n");
 			// TODO: Why is mscale() switching dimensions?
 			mscale(sum, 1.0, current_vector);
 		}
-		DEBUG_PRINTF("Final current_vector dimensions: %d x %d\n", current_vector->rows, current_vector->cols);
-		DEBUG_MPRINT(current_vector);
+		//DEBUG_PRINTF("Final current_vector dimensions: %d x %d\n", current_vector->rows, current_vector->cols);
+		//DEBUG_MPRINT(current_vector);
 	}
 
 	// Apply output activation, if applicable
@@ -183,10 +185,11 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 	/* Make sure training data is right size */
 	/* For matrix multiplication, rows of the first matrix must be equal to cols of the second. Weight*Activation */
 	if(X_train->rows != nn->weights[0]->cols){
-		DEBUG_PRINTF("nbprop(): X_train rows does not equal weights[0] cols");
+		DEBUG_PRINTF("nbprop(): X_train rows (%d x %d) does not equal weights[0] cols (%d x %d)\n", X_train->rows, X_train->cols, nn->weights[0]->rows, nn->weights[0]->cols);
 		mprint(X_train);
 		mprint(nn->weights[0]);
 		return NULL;
+		// TODO: Handle when null is returned in ntrain()
 	}
 
 	/* Allocate variables */
@@ -261,7 +264,7 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 	
 	
 	// TODO: Allocate Zs[nn->n_layers - 2] and check for 0 rows or 0 columns in ndiff()
-	ndiff(Zs[nn->n_layers - 2], nn->hidden_activ, err); // Derivative of activation function wrt output Z vector TODO: Why is this overwriting delta
+	ndiff(Zs[nn->n_layers - 2], nn->hidden_activ, err); // Derivative of activation function wrt output Z vector TODO: Why is this overwriting delta (problem seems to be fixed)
 	/*err = mapply(Zs[nn->n_layers - 2], &dsigm, NULL);*/
 	
 	
@@ -358,11 +361,6 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 		/* nabla_w[-l] = np.dot(delta, activations[-l-1].transpose()) */
 		nabla_w[layer - 1] = mnew(1, 1);
 		mmul(delta, last_activation, nabla_w[layer - 1]); /* Equation BP4 */
-		printf("^^^Delta:\n");
-		mprint(delta);
-		printf("^^^Last activation:\n");
-		mprint(last_activation);
-		// TODO: Why is last_activation always 0???
 		
 		
 		
@@ -405,4 +403,106 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 	nablas[0] = nabla_w;
 	nablas[1] = nabla_b;
 	return nablas;
+}
+#define P_NTRAIN 1
+void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train, const lfunc loss_func,
+			const lfuncd dloss_func, unsigned int epochs, double learning_rate){
+	Matrix_t *cur_X, *cur_y;
+	Matrix_t ***gradients, **weight_gradients, **bias_gradients;
+	unsigned int epoch;
+	int current_row, i;
+
+	for(epoch = 0; epoch <= epochs; epoch++){
+		/* Which row of data we will be backpropagting on, this just increases every epoch and loops back over,
+		this is semi-stochastic gradient descent, as the data being trained on changes for each epoch but not in a random way */
+		/*current_row = epoch % X_train->rows;*/
+		current_row = rand() % X_train->rows;
+
+		/* Get the current row of data from X_train and put it in cur_X column vector */
+		cur_X = mnew(X_train->cols, 1);
+		for(i = 0; i < X_train->cols; i++){
+			cur_X->data[IDX_M(*cur_X, i, 0)] = X_train->data[IDX_M(*X_train, current_row, i)];
+		}
+		/* Get the current row of data from y_train and put it in cur_y column vector */
+		cur_y = mnew(y_train->cols, 1);
+		for(i = 0; i < y_train->cols; i++){
+			cur_y->data[IDX_M(*cur_y, i, 0)] = y_train->data[IDX_M(*y_train, current_row, i)];
+		}
+		printf("Cur X:\n");
+		mprint(cur_X);
+		printf("Cur Y:\n");
+		mprint(cur_y);
+
+		/* Start backprop with loss function */
+		gradients = nbprop(nn, cur_X, cur_y, loss_func, dloss_func); // TODO: Why are gradients 0??
+		weight_gradients = gradients[0];
+		bias_gradients = gradients[1];
+
+		/* Backpropagate each layer */
+		/*printf("==========================Epoch: %d\n", epoch);*/
+		for(i = 0; i < nn->n_layers - 1; i++){
+			Matrix_t *cur_weight_gradient = mnew(1, 1);
+			Matrix_t *cur_bias_gradient = mnew(1, 1);
+			mscale(weight_gradients[i], learning_rate, cur_weight_gradient);
+			mscale(bias_gradients[i], learning_rate, cur_bias_gradient);
+
+			int j;
+			double cur_weight_norm, cur_bias_norm;
+			/* Clip the gradients to a specified vector norm value, this is needed to avoid the
+			"exploding gradients problem" where the weights are corrected too far and get far from the 
+			optimum. */
+			/* This needs to be repeated twice because of floating point overflow in the norm values,
+			which causes mfrob() to overflow to a negative value.*/
+			for(j = 0; j < 2; j++){
+				cur_weight_norm = fabs(mfrob(cur_weight_gradient));
+				cur_bias_norm = fabs(mfrob(cur_bias_gradient));
+				/*printf("1/CWN: %f, 1/CBN: %f", cur_weight_norm, cur_bias_norm);*/
+				if(cur_weight_norm > NORM_MAX){
+					mscale(cur_weight_gradient, 1/cur_weight_norm, cur_weight_gradient);
+					mscale(cur_weight_gradient, NORM_MAX, cur_weight_gradient);
+				}
+				if(cur_bias_norm > NORM_MAX){
+					mscale(cur_bias_gradient, 1/cur_bias_norm, cur_bias_gradient);
+					mscale(cur_bias_gradient, NORM_MAX, cur_bias_gradient);
+				}
+			}
+			#ifdef P_NTRAIN
+			printf("---Layer %d---\n\n", i);
+			printf("Current weight gradient:\n");
+			mprint(weight_gradients[i]);
+			printf("Current bias gradient:\n");
+			mprint(bias_gradients[i]);
+			printf("Current W/B norms: %f, %f\n", cur_weight_norm, cur_bias_norm);
+			printf("Current scaled WG:\n");
+			mprint(cur_weight_gradient);
+			printf("Current scaled BG:\n");
+			mprint(cur_bias_gradient);
+			printf("Old weights (%d x %d):\n", nn->weights[i]->rows, nn->weights[i]->cols);
+			mprint(nn->weights[i]);
+			printf("Old biases (%d x %d):\n", nn->biases[i]->rows, nn->biases[i]->cols);
+			mprint(nn->biases[i]);
+			#endif
+			nn->weights[i] = msub(nn->weights[i], cur_weight_gradient, nn->weights[i]);
+			nn->biases[i] = msub(nn->biases[i], cur_bias_gradient, nn->biases[i]);
+			#ifdef P_NTRAIN
+			printf("Current weights (%d x %d):\n", nn->weights[i]->rows, nn->weights[i]->cols);
+			mprint(nn->weights[i]);
+			printf("Current biases (%d x %d):\n", nn->biases[i]->rows, nn->biases[i]->cols);
+			mprint(nn->biases[i]);
+			#endif
+			/* Free gradient variables */
+			mfree(weight_gradients[i]);
+			mfree(bias_gradients[i]);
+			mfree(cur_weight_gradient);
+			mfree(cur_bias_gradient);
+		}
+
+		/* Free unneeded variables */
+		mfree(cur_X);
+		mfree(cur_y);
+		free(weight_gradients);
+		free(bias_gradients);
+		free(gradients);
+	}
+	/* Return nothing, as the neural network is trained in place */
 }

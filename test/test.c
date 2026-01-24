@@ -409,6 +409,46 @@ static char* test_nbprop()
 	return NULL;
 }
 
+static char* test_ntrain()
+{
+	srand(42);
+	// Set up training data, y=2x+1
+	Matrix_t *x = mnew(8, 1);
+	double x_data[8] = {-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0};
+	memcpy(x->data, x_data, sizeof(x_data));
+	Matrix_t *y = mnew(8, 1);
+	for(int i = 0; i < 8; i++)
+	{
+		y->data[i] = (x->data[i] * 2.0) + 1.0 + ((i % 2)? 0.2: -0.2);
+	}
+	
+	// Train the network
+	llnn_network_t* nn = ninit(1, 2, 2, 1, &asigm, NULL);
+	ntrain(nn, x, y, lmse, dmse, 100, 0.01);
+
+	// Predict and get the mean squared error
+	Matrix_t *preds = mnew(x->rows, x->cols);
+	for(int i = 0; i < x->rows; i++)
+	{
+		Matrix_t *pred = mnew(1, 1);
+		Matrix_t *x_in = mnew(1, 1);
+		x_in->data[0] = x->data[i];
+		npred(nn, x_in, pred);
+		preds->data[i] = pred->data[0];
+		printf("PRED: %f, actual: %f\n", pred->data[0], y->data[i]);
+		mfree(pred);
+		mfree(x_in);
+	}
+	float mse = lmse(y, preds);
+	printf("PREDS:\n");
+	mprint(preds);
+	printf("Y:\n");
+	mprint(y);
+
+	printf("MSE: %f\n", mse);
+
+	return NULL;
+}
 
 static char* all_tests(){
 	mu_run_test(test_mnew);
@@ -427,6 +467,7 @@ static char* all_tests(){
 	mu_run_test(test_npred);
 	mu_run_test(test_ndiff);
 	mu_run_test(test_nbprop);
+	mu_run_test(test_ntrain);
 	return NULL;
 }
 
