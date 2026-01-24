@@ -68,7 +68,6 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 	if(!nn || !x || !nn->weights || !nn->biases)return NULL;
 
 	mscale(x, 1.0, current_vector);
-	mprint(x);
 	// There are 1 less weights than layers
 	for(layer = 0; layer < nn->n_layers - 1; layer++){
 		Matrix_t *res;
@@ -103,7 +102,7 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 		mfree(current_vector);
 		current_vector = sum;
 	}
-    DEBUG_PRINTF("current_vector dimensions: %d, %d\n", current_vector->rows, current_vector->cols);
+    //DEBUG_PRINTF("current_vector dimensions: %d, %d\n", current_vector->rows, current_vector->cols);
 
     // TODO: Free current_vector better
     mfree(sum);
@@ -406,6 +405,7 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 }
 //#define P_NTRAIN 1
 #define CLIP 1
+#define P_LOSS 1
 void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train, const lfunc loss_func,
 			const lfuncd dloss_func, unsigned int epochs, double learning_rate){
 	Matrix_t *cur_X, *cur_y;
@@ -440,8 +440,13 @@ void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train
 		gradients = nbprop(nn, cur_X, cur_y, loss_func, dloss_func); // TODO: Why are gradients 0?? Seems to be fixed
 		weight_gradients = gradients[0];
 		bias_gradients = gradients[1];
-		#ifdef P_NTRAIN
+		#ifdef P_LOSS
 		// TODO: Calculate loss
+		Matrix_t *pred = mnew(1, 1);
+		npred(nn, cur_X, pred);
+		double loss = loss_func(pred, cur_y);
+		printf("^^^Loss on epoch %d: %f\n", epoch, loss);
+		mfree(pred);
 		#endif
 
 		/* Backpropagate each layer */
