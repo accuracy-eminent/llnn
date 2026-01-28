@@ -114,7 +114,8 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
     {
         out->data[i] = current_vector->data[i];
     }
-	return current_vector;
+	mfree(current_vector);
+	return out;
 }
 
 
@@ -403,6 +404,58 @@ Matrix_t*** nbprop(const llnn_network_t* nn, const Matrix_t* X_train, const Matr
 	nablas[1] = nabla_b;
 	return nablas;
 }
+
+
+Matrix_t* npredm(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
+	Matrix_t *output, *x_trans, *cur_vec, *tmp;
+	int i, j, output_rows;
+
+	// Check input data
+	if(x == NULL) return NULL;
+
+	/* Predict every row of the data (every col of transposed matrix) */
+	/* Find out how many rows the neural network outputs */
+	x_trans = mnew(1, 1);
+	mtrns(x, x_trans);
+	cur_vec = mnew(1, 1);
+	mslice(x_trans, cur_vec, 0, 1, 1);
+	tmp = mnew(1, 1);
+	npred(nn, cur_vec, tmp);
+	output_rows = tmp->rows;
+	output = mnew(x->rows, output_rows);
+	/* Free unneeded variables */
+	mfree(tmp);
+	mfree(cur_vec);
+	/* Predict every row of data */
+	for(i = 0; i < x_trans->cols; i++){
+		/* Predict the current vector of data */
+		cur_vec = mnew(1, 1);
+		mslice(x_trans, cur_vec, i, i+1, 1);
+		tmp = mnew(1, 1);
+		npred(nn, cur_vec, tmp);
+		/* Move the prediction into the matrix */
+		for(j = 0; j < tmp->rows; j++){
+			output->data[IDX_M(*output, i, j)] = tmp->data[IDX_M(*tmp, j, 0)];
+		}
+		// Free variables
+		mfree(tmp);
+		mfree(cur_vec);
+	}
+	// Free unneeded variables
+	mfree(x_trans);
+
+	// Return the final prediction column vector
+    if(mrealloc(out, output->rows, output->cols) != 0) return NULL;
+    for(int i = 0; i < output->rows * output->cols; i++)
+    {
+        out->data[i] = output->data[i];
+    }
+
+	// Return the output data
+	mfree(output);
+	return out;
+}
+
 //#define P_NTRAIN 1
 #define CLIP 1
 #define P_LOSS 1

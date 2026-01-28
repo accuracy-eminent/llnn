@@ -436,7 +436,6 @@ static char* test_ntrain()
 		x_in->data[0] = x->data[i];
 		npred(nn, x_in, pred);
 		preds->data[i] = pred->data[0];
-		printf("PRED: %f, actual: %f\n", pred->data[0], y->data[i]);
 		mfree(pred);
 		mfree(x_in);
 	}
@@ -448,6 +447,22 @@ static char* test_ntrain()
 
 	printf("MSE: %f\n", mse);
 
+	return NULL;
+}
+
+static char* test_npredm()
+{
+	Matrix_t *in, *out;
+	in = mnew(2, 2);
+	in->data[0] = 6;
+	in->data[1] = 5;
+	in->data[2] = 1;
+	in->data[3] = 2;
+	out = mnew(1, 1);
+	llnn_network_t *nn = ninit(2, 2, 4, 2, &asigm, NULL);
+	npredm(nn, in, out);
+	// TODO: Add more input dimensions
+	mu_assert("Output size is wrong", out->cols == 2 && out->rows == 2);
 	return NULL;
 }
 
@@ -469,14 +484,17 @@ static char* all_tests(){
 	mu_run_test(test_ndiff);
 	mu_run_test(test_nbprop);
 	mu_run_test(test_ntrain);
+	mu_run_test(test_npredm);
 	return NULL;
 }
 
+// TODO: Print number of successes out of total
 int main(void){
 	srand(42);
 	char* result = all_tests();
 	if(result != NULL){
 		printf("%s\n",result);
+		printf("Not all tests passed!\n");
 	}
 	else{
 		printf("All tests passed!\n");
