@@ -7,6 +7,7 @@
 #include "../src/activ.h"
 #include "../src/loss.h"
 #include "../src/nn.h"
+#include "../src/io.h"
 
 int tests_run = 0;
 
@@ -466,6 +467,16 @@ static char* test_npredm()
 	return NULL;
 }
 
+static char* test_io(){
+	Matrix_t *iris;
+	iris = mnew(1, 1);
+	ireadcsv("datasets/iris2.csv", iris);
+	mu_assert("Error, could not load in CSV data!", iris != NULL);
+	mu_assert("Number of columns is wrong", iris->cols == 7);
+	mfree(iris);
+	return NULL;
+}
+
 static char* all_tests(){
 	mu_run_test(test_mnew);
 	mu_run_test(test_mcmp);
@@ -485,6 +496,7 @@ static char* all_tests(){
 	mu_run_test(test_nbprop);
 	mu_run_test(test_ntrain);
 	mu_run_test(test_npredm);
+	mu_run_test(test_io);
 	return NULL;
 }
 
