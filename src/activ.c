@@ -62,3 +62,30 @@ Matrix_t* asmax(const Matrix_t* a){
 
 	return out;
 }
+
+/* Hardmax function, converts softmax outputs to one-hot */
+Matrix_t* ahmax(const Matrix_t* a){
+    Matrix_t* out;
+    int row, col;
+	double row_max = 0.0;
+
+    out = mnew(a->rows, a->cols);
+
+    /* Calculate the maximum element in each row, and record it as a 0 or 1 in the output matrix */
+	for(row = 0; row < a->rows; row++){
+		row_max = 0;
+		/* Find the maximum element in each row */
+		for(col = 0; col < a->cols; col++){
+			if(a->data[IDX_M(*a, row, col)] > row_max) row_max = a->data[IDX_M(*a, row, col)];
+		}
+		/* For every item in the row, if it is the max it is 1, otherwise it is 0 */
+		for(col = 0; col < a->cols; col++){
+			if(a->data[IDX_M(*a, row, col)]  >= row_max) out->data[IDX_M(*out, row, col)]  = 1;
+			else out->data[IDX_M(*out, row, col)]  = 0;
+		}
+	}
+
+	/* Return the hardmax output */
+	return out;
+}
+

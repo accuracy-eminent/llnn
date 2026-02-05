@@ -98,9 +98,9 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 
 	// Apply output activation, if applicable
 	if(nn->output_activ){
-		sum = nn->output_activ(current_vector);
+		Matrix_t *out_activ = nn->output_activ(current_vector);
 		mfree(current_vector);
-		current_vector = sum;
+		current_vector = out_activ;
 	}
     //DEBUG_PRINTF("current_vector dimensions: %d, %d\n", current_vector->rows, current_vector->cols);
 
