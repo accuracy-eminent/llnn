@@ -441,10 +441,6 @@ static char* test_ntrain()
 		mfree(x_in);
 	}
 	float mse = lmse(y, preds);
-	printf("PREDS:\n");
-	mprint(preds);
-	printf("Y:\n");
-	mprint(y);
 
 	printf("MSE: %f\n", mse);
 

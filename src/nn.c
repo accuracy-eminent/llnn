@@ -70,12 +70,11 @@ Matrix_t* npred(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 	mscale(x, 1.0, current_vector);
 	// There are 1 less weights than layers
 	for(layer = 0; layer < nn->n_layers - 1; layer++){
-		Matrix_t *res;
 		// Apply the weights and biases
         //DEBUG_PRINTF("---Size of weights on layer %d is %d x %d, weights are:\n", layer, nn->weights[layer]->rows, nn->weights[layer]->cols);
 		//DEBUG_MPRINT(nn->weights[layer]);
         // TODO: why is reallocation failing here
-		res = mmul(nn->weights[layer], current_vector, product);
+		mmul(nn->weights[layer], current_vector, product);
 		//DEBUG_PRINTF("Multiplication results:\n");
 		//DEBUG_MPRINT(res);
 		//DEBUG_PRINTF("Product dimensions: %d, %d, res: %p\n", product->rows, product->cols, (void *)res);
@@ -456,9 +455,7 @@ Matrix_t* npredm(const llnn_network_t* nn, const Matrix_t* x, Matrix_t* out){
 	return out;
 }
 
-//#define P_NTRAIN 1
 #define CLIP 1
-#define P_LOSS 1
 void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train, const lfunc loss_func,
 			const lfuncd dloss_func, unsigned int epochs, double learning_rate){
 	Matrix_t *cur_X, *cur_y;
@@ -494,7 +491,6 @@ void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train
 		weight_gradients = gradients[0];
 		bias_gradients = gradients[1];
 		#ifdef P_LOSS
-		// TODO: Calculate loss
 		Matrix_t *pred = mnew(1, 1);
 		npred(nn, cur_X, pred);
 		double loss = loss_func(pred, cur_y);
@@ -523,13 +519,10 @@ void ntrain(llnn_network_t* nn, const Matrix_t* X_train, const Matrix_t* y_train
 				cur_bias_norm = fabs(mfrob(cur_bias_gradient));
 				//printf("1/CWN: %f, 1/CBN: %f", cur_weight_norm, cur_bias_norm);
 				if(cur_weight_norm > NORM_MAX){
-					printf("Clipping weight gradient: %f\n", cur_weight_norm);
 					mscale(cur_weight_gradient, 1/cur_weight_norm, cur_weight_gradient);
 					mscale(cur_weight_gradient, NORM_MAX, cur_weight_gradient);
-					mprint(cur_weight_gradient);
 				}
 				if(cur_bias_norm > NORM_MAX){
-					printf("Clipping bias gradient: %f\n", cur_bias_norm);
 					mscale(cur_bias_gradient, 1/cur_bias_norm, cur_bias_gradient);
 					mscale(cur_bias_gradient, NORM_MAX, cur_bias_gradient);
 				}
